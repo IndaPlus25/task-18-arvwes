@@ -23,7 +23,7 @@ fn main() {
         if no_nodes == 0 && no_edges == 0 && no_queries == 0 && start == 0 {
             break;
         }
-
+        // an adjesancy vector with nodes as index with a vector of edges with direction and weight
         let mut graph: Vec<Vec<(usize, u32)>> = vec![Vec::new(); no_nodes];
 
         for _ in 0..no_edges {
@@ -38,7 +38,7 @@ fn main() {
 
         for _ in 0..no_queries {
             let dest: usize = tokens.next().unwrap().parse().unwrap();
-
+            //check if path exists and print shortest path if it does
             if shortest_dist[dest] != u32::MAX {
                 println!("{}", shortest_dist[dest]);
             } else {
@@ -48,28 +48,28 @@ fn main() {
         println!();
     }
 }
-
+/**
+ * calculates the shortest path to every node from a starting node using dijkstras algorithm
+ */
 fn dijkstra(graph: &Vec<Vec<(usize, u32)>>, start_node: usize) -> Vec<u32> {
-    let mut distances: Vec<u32> = vec![u32::MAX; graph.len()];
+    let mut distances: Vec<u32> = vec![u32::MAX; graph.len()]; // vetor of distances where index represents a node 
     let mut prio_queue: BinaryHeap<(Reverse<usize>, usize)> = BinaryHeap::new();
     distances[start_node] = 0;
     prio_queue.push((Reverse(0), start_node));
-
+    // calculate the shortest distance to every node and save in distances
     while let Some((Reverse(current_distance), from_node)) = prio_queue.pop() {
         if current_distance > distances[from_node] as usize {
             continue;
         }
-        
+
         for edge in &graph[from_node] {
-            
             let weight = edge.1;
             let to_node = edge.0;
+            //if new distance is less than current distance to the node change it and update queue
             if distances[to_node] > (weight + distances[from_node]) {
                 distances[to_node] = weight + distances[from_node];
                 prio_queue.push((Reverse(distances[to_node] as usize), to_node));
             }
-
-         
         }
     }
 
