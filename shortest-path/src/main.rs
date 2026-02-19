@@ -4,7 +4,9 @@ use std::io::Read;
 use std::{io, usize};
 fn main() {
     let mut input = String::new();
-    io::stdin().read_to_string(&mut input).expect("Failed to read from stdin");
+    io::stdin()
+        .read_to_string(&mut input)
+        .expect("Failed to read from stdin");
     let mut tokens = input.split_whitespace();
 
     loop {
@@ -22,36 +24,32 @@ fn main() {
             break;
         }
 
-       
-         let mut graph: Vec<Vec<u32>> = vec![vec![u32::MAX; no_nodes]; no_nodes];
+        let mut graph: Vec<Vec<(usize, u32)>> = vec![Vec::new(); no_nodes];
 
         for _ in 0..no_edges {
             let u: usize = tokens.next().unwrap().parse().unwrap();
             let v: usize = tokens.next().unwrap().parse().unwrap();
             let weight: u32 = tokens.next().unwrap().parse().unwrap();
-            
-           
-            graph[u][v] = weight;
+
+            graph[u].push((v, weight));
         }
 
-      
         let shortest_dist = dijkstra(&graph, start);
 
-        
         for _ in 0..no_queries {
             let dest: usize = tokens.next().unwrap().parse().unwrap();
 
             if shortest_dist[dest] != u32::MAX {
                 println!("{}", shortest_dist[dest]);
             } else {
-                println!("Impossible"); 
+                println!("Impossible");
             }
         }
-        println!(); 
+        println!();
     }
 }
 
-fn dijkstra(graph: &Vec<Vec<u32>>, start_node: usize) -> Vec<u32> {
+fn dijkstra(graph: &Vec<Vec<(usize, u32)>>, start_node: usize) -> Vec<u32> {
     let mut distances: Vec<u32> = vec![u32::MAX; graph.len()];
     let mut prio_queue: BinaryHeap<(Reverse<usize>, usize)> = BinaryHeap::new();
     distances[start_node] = 0;
@@ -61,17 +59,17 @@ fn dijkstra(graph: &Vec<Vec<u32>>, start_node: usize) -> Vec<u32> {
         if current_distance > distances[from_node] as usize {
             continue;
         }
-        let mut to_node = 0;
+        
         for edge in &graph[from_node] {
-            if edge != &u32::MAX {
-                let weight = *edge;
-                if distances[to_node] > (weight + distances[from_node]) {
-                    distances[to_node] = weight + distances[from_node];
-                    prio_queue.push((Reverse(distances[to_node] as usize), to_node));
-                }
+            
+            let weight = edge.1;
+            let to_node = edge.0;
+            if distances[to_node] > (weight + distances[from_node]) {
+                distances[to_node] = weight + distances[from_node];
+                prio_queue.push((Reverse(distances[to_node] as usize), to_node));
             }
 
-            to_node += 1;
+         
         }
     }
 
